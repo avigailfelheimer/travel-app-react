@@ -126,3 +126,80 @@ export const INTERNAL_SERVER_ERROR = {
     message: 'Internal server error',
     status: 500
 };
+
+// ===== Additional Project Errors =====
+
+export const NO_FILE_UPLOADED = {
+    message: 'No file uploaded',
+    status: 400
+};
+
+export const NAME_CATEGORY_REQUIRED = {
+    message: 'name and category are required',
+    status: 400
+};
+
+export const PLACE_UPDATE_FAILED = {
+    message: 'Failed to update place',
+    status: 500
+};
+
+export const FILE_SIZE_EXCEEDED = {
+    message: 'File size exceeds the 50MB limit',
+    status: 400
+};
+
+export const RATING_MUST_BE_NUMBER = {
+    message: 'Rating must be a number',
+    status: 400
+};
+
+export const ROUTE_NOT_FOUND = {
+    message: 'Route not found',
+    status: 404
+};
+
+export const FETCH_FAILED = {
+    message: 'Failed to fetch items',
+    status: 500
+};
+
+export const FETCH_ITEM_FAILED = {
+    message: 'Failed to fetch item',
+    status: 500
+};
+
+export const ITEM_NOT_FOUND = {
+    message: 'Item not found',
+    status: 404
+};
+
+export const DELETE_FAILED = {
+    message: 'Failed to delete item',
+    status: 500
+};
+
+export const PLACE_ID_REQUIRED = {
+    message: 'place_id is required',
+    status: 400
+};
+
+export const ENTRIES_REQUIRED = {
+    message: 'entries must be a non-empty array',
+    status: 400
+};
+
+export const ENTRY_FIELDS_REQUIRED = {
+    message: 'Each entry must have favorite_id and order_index',
+    status: 400
+};
+
+export const PLACE_ID_REQUIRED_PARAM = {
+    message: 'Place ID is required',
+    status: 400
+};
+
+export const REVIEW_ID_REQUIRED = {
+    message: 'Review ID is required',
+    status: 400
+};

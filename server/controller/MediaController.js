@@ -1,5 +1,6 @@
 import { saveMedia, getPlaceMedia, removeMedia } from '../services/MediaService.js';
 import { buildMediaUrl, resolveMediaType } from '../middleWare/uploadMiddleware.js';
+import { NO_FILE_UPLOADED } from '../const/errorConst.js';
 
 /**
  * POST /places/:placeId/media
@@ -10,7 +11,7 @@ export const postMedia = async (req, res) => {
         const { placeId } = req.params;
 
         if (!req.file) {
-            return res.status(400).json({ error: 'No file uploaded' });
+            return res.status(NO_FILE_UPLOADED.status).json({ error: NO_FILE_UPLOADED.message });
         }
 
         const mediaType = resolveMediaType(req.file.mimetype);

@@ -10,6 +10,7 @@ import reviewRoutes    from './routes/reviewRoute.js';
 import itineraryRoutes from './routes/itineraryRoute.js';
 import mediaRoutes     from './routes/mediaRoute.js';
 import { initSocket }  from './services/socketManager.js';
+import { ROUTE_NOT_FOUND, INTERNAL_SERVER_ERROR } from './const/errorConst.js';
 
 const app        = express();
 const httpServer = createServer(app);
@@ -34,13 +35,13 @@ app.use('/itinerary', itineraryRoutes);
 
 // 404 handler
 app.use((req, res) => {
-    res.status(404).json({ error: 'Route not found' });
+    res.status(ROUTE_NOT_FOUND.status).json({ error: ROUTE_NOT_FOUND.message });
 });
 
 // Global error handler
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).json({ error: 'Something went wrong' });
+    res.status(INTERNAL_SERVER_ERROR.status).json({ error: INTERNAL_SERVER_ERROR.message });
 });
 
 // אתחול Socket.io

@@ -4,6 +4,7 @@ import {
     removePlace,
     reorderPlaces
 } from '../services/ItineraryService.js';
+import { PLACE_ID_REQUIRED, ENTRIES_REQUIRED, ENTRY_FIELDS_REQUIRED } from '../const/errorConst.js';
 
 /**
  * GET /itinerary
@@ -27,7 +28,7 @@ export const postItineraryPlace = async (req, res) => {
         const { place_id } = req.body;
 
         if (!place_id) {
-            return res.status(400).json({ error: 'place_id is required' });
+            return res.status(PLACE_ID_REQUIRED.status).json({ error: PLACE_ID_REQUIRED.message });
         }
 
         const entry = await addPlace(req.user.id, place_id);
@@ -61,12 +62,12 @@ export const putItineraryOrder = async (req, res) => {
         const { entries } = req.body;
 
         if (!Array.isArray(entries) || entries.length === 0) {
-            return res.status(400).json({ error: 'entries must be a non-empty array' });
+            return res.status(ENTRIES_REQUIRED.status).json({ error: ENTRIES_REQUIRED.message });
         }
 
         for (const entry of entries) {
             if (entry.favorite_id === undefined || entry.order_index === undefined) {
-                return res.status(400).json({ error: 'Each entry must have favorite_id and order_index' });
+                return res.status(ENTRY_FIELDS_REQUIRED.status).json({ error: ENTRY_FIELDS_REQUIRED.message });
             }
         }
 

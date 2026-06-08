@@ -7,7 +7,13 @@ import {
     INVALID_TOKEN,
     ACCESS_DENIED,
     INSUFFICIENT_PERMISSIONS,
-    INTERNAL_SERVER_ERROR
+    INTERNAL_SERVER_ERROR,
+    PLACE_ID_REQUIRED_PARAM,
+    PLACE_NOT_FOUND,
+    UNAUTHORIZED_PLACE_MODIFICATION,
+    REVIEW_ID_REQUIRED,
+    REVIEW_NOT_FOUND,
+    UNAUTHORIZED_REVIEW_MODIFICATION
 } from '../const/errorConst.js';
 
 const SECRET = process.env.JWT_SECRET;
@@ -60,19 +66,19 @@ export const authorizePlaceModification = async (req, res, next) => {
     try {
         const placeId = req.params.id;
         if (!placeId) {
-            return res.status(400).json({ error: 'Place ID is required' });
+            return res.status(PLACE_ID_REQUIRED_PARAM.status).json({ error: PLACE_ID_REQUIRED_PARAM.message });
         }
 
         const place = await getPlaceById(placeId);
         if (!place) {
-            return res.status(404).json({ error: 'Place not found' });
+            return res.status(PLACE_NOT_FOUND.status).json({ error: PLACE_NOT_FOUND.message });
         }
 
         const isOwner = req.user.id === place.created_by;
         const isAdmin = req.user.role === 'admin';
 
         if (!isOwner && !isAdmin) {
-            return res.status(403).json({ error: 'Only the place creator or an admin can modify this place' });
+            return res.status(UNAUTHORIZED_PLACE_MODIFICATION.status).json({ error: UNAUTHORIZED_PLACE_MODIFICATION.message });
         }
 
         next();
@@ -89,19 +95,19 @@ export const authorizeReviewModification = async (req, res, next) => {
     try {
         const { reviewId } = req.params;
         if (!reviewId) {
-            return res.status(400).json({ error: 'Review ID is required' });
+            return res.status(REVIEW_ID_REQUIRED.status).json({ error: REVIEW_ID_REQUIRED.message });
         }
 
         const review = await getReviewById(reviewId);
         if (!review) {
-            return res.status(404).json({ error: 'Review not found' });
+            return res.status(REVIEW_NOT_FOUND.status).json({ error: REVIEW_NOT_FOUND.message });
         }
 
         const isOwner = req.user.id === review.user_id;
         const isAdmin = req.user.role === 'admin';
 
         if (!isOwner && !isAdmin) {
-            return res.status(403).json({ error: 'Only the review creator or an admin can modify this review' });
+            return res.status(UNAUTHORIZED_REVIEW_MODIFICATION.status).json({ error: UNAUTHORIZED_REVIEW_MODIFICATION.message });
         }
 
         next();

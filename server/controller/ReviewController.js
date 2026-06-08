@@ -1,4 +1,5 @@
 import { addReview, getPlaceReviews, editReview, removeReview } from '../services/ReviewService.js';
+import { RATING_REQUIRED, RATING_MUST_BE_NUMBER } from '../const/errorConst.js';
 
 /**
  * POST /places/:placeId/reviews
@@ -11,12 +12,12 @@ export const postReview = async (req, res) => {
         const userId = req.user.id;
 
         if (rating === undefined || rating === null) {
-            return res.status(400).json({ error: 'Rating is required' });
+            return res.status(RATING_REQUIRED.status).json({ error: RATING_REQUIRED.message });
         }
 
         const numericRating = Number(rating);
         if (isNaN(numericRating)) {
-            return res.status(400).json({ error: 'Rating must be a number' });
+            return res.status(RATING_MUST_BE_NUMBER.status).json({ error: RATING_MUST_BE_NUMBER.message });
         }
 
         const newReview = await addReview(userId, placeId, numericRating, comment);
@@ -50,12 +51,12 @@ export const putReview = async (req, res) => {
         const { rating, comment } = req.body;
 
         if (rating === undefined || rating === null) {
-            return res.status(400).json({ error: 'Rating is required' });
+            return res.status(RATING_REQUIRED.status).json({ error: RATING_REQUIRED.message });
         }
 
         const numericRating = Number(rating);
         if (isNaN(numericRating)) {
-            return res.status(400).json({ error: 'Rating must be a number' });
+            return res.status(RATING_MUST_BE_NUMBER.status).json({ error: RATING_MUST_BE_NUMBER.message });
         }
 
         await editReview(reviewId, numericRating, comment);

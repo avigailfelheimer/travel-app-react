@@ -1,6 +1,6 @@
 import multer from 'multer';
 import path from 'path';
-import { INVALID_MEDIA_TYPE, MEDIA_UPLOAD_FAILED } from '../const/errorConst.js';
+import { INVALID_MEDIA_TYPE, MEDIA_UPLOAD_FAILED, FILE_SIZE_EXCEEDED } from '../const/errorConst.js';
 
 // ===== הגדרת אחסון =====
 // כרגע: שמירה לדיסק מקומי תחת /uploads
@@ -64,7 +64,7 @@ export const resolveMediaType = (mimetype) => {
 export const handleUploadError = (err, req, res, next) => {
     if (err instanceof multer.MulterError) {
         if (err.code === 'LIMIT_FILE_SIZE') {
-            return res.status(400).json({ error: 'File size exceeds the 50MB limit' });
+            return res.status(FILE_SIZE_EXCEEDED.status).json({ error: FILE_SIZE_EXCEEDED.message });
         }
         return res.status(400).json({ error: err.message });
     }
