@@ -20,7 +20,6 @@ const SECRET = process.env.JWT_SECRET;
 
 const ROLE_HIERARCHY = {
     'regular': 1,
-    'business': 2,
     'admin': 3
 };
 
@@ -41,22 +40,22 @@ export const authenticateToken = (req, res, next) => {
     }
 };
 
-export const requireRole = (role) => (req, res, next) => {
-    try {
-        if (!req.user)
-            return res.status(ACCESS_DENIED.status).json({ error: ACCESS_DENIED.message });
+// export const requireRole = (role) => (req, res, next) => {
+//     try {
+//         if (!req.user)
+//             return res.status(ACCESS_DENIED.status).json({ error: ACCESS_DENIED.message });
 
-        const requiredLevel = ROLE_HIERARCHY[role];
-        const userLevel = ROLE_HIERARCHY[req.user.role];
+//         const requiredLevel = ROLE_HIERARCHY[role];
+//         const userLevel = ROLE_HIERARCHY[req.user.role];
 
-        if (!userLevel || userLevel < requiredLevel)
-            return res.status(INSUFFICIENT_PERMISSIONS.status).json({ error: INSUFFICIENT_PERMISSIONS.message });
+//         if (!userLevel || userLevel < requiredLevel)
+//             return res.status(INSUFFICIENT_PERMISSIONS.status).json({ error: INSUFFICIENT_PERMISSIONS.message });
 
-        next();
-    } catch (err) {
-        res.status(INTERNAL_SERVER_ERROR.status).json({ error: INTERNAL_SERVER_ERROR.message });
-    }
-};
+//         next();
+//     } catch (err) {
+//         res.status(INTERNAL_SERVER_ERROR.status).json({ error: INTERNAL_SERVER_ERROR.message });
+//     }
+// };
 
 /**
  * בדיקת הרשאות לערוך/למחוק place

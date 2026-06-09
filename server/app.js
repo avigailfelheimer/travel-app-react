@@ -12,7 +12,7 @@ import mediaRoutes     from './routes/mediaRoute.js';
 import { initSocket }  from './services/socketManager.js';
 import { ROUTE_NOT_FOUND, INTERNAL_SERVER_ERROR } from './const/errorConst.js';
 
-const app        = express();
+const app = express();
 const httpServer = createServer(app);
 
 app.use(cors({
@@ -28,8 +28,8 @@ app.use('/uploads', express.static('uploads'));
 // Routes
 app.use('/auth',      authRoutes);
 app.use('/places',    placeRoutes);
-app.use('/places',    reviewRoutes);
-app.use('/places',    mediaRoutes);   // mediaRoute מגדיר '/:placeId/media' בפנים + mergeParams:true
+app.use('/places/:placeId/reviews', reviewRoutes);
+app.use('/places/:placeId/media', mediaRoutes);   // mediaRoute מגדיר '/:placeId/media' בפנים + mergeParams:true
 
 app.use('/itinerary', itineraryRoutes);
 

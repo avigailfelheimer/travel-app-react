@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect } from 'react';
 export const UserContext = createContext(null);
 
 export function UserProvider({ children }) {
@@ -7,26 +7,28 @@ export function UserProvider({ children }) {
 
   useEffect(() => {
     try {
-      const savedUser = localStorage.getItem("user");
+      const savedUser = localStorage.getItem('user');
       if (savedUser) {
         setUser(JSON.parse(savedUser));
       }
     } catch (e) {
-      localStorage.removeItem("user");
+      localStorage.removeItem('user');
     } finally {
       setIsLoading(false);
     }
   }, []);
 
   const login = (userData) => {
-    console.log("Logging in user:", userData);
     setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem('user', JSON.stringify(userData));
   };
 
+  // Call this before navigating away on logout so ProtectedRoute
+  // knows it was an intentional logout and won't show the alert.
   const logout = () => {
+    sessionStorage.setItem('loggingOut', 'true');
     setUser(null);
-    localStorage.removeItem("user");
+    localStorage.removeItem('user');
   };
 
   return (
