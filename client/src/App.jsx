@@ -6,9 +6,8 @@ import PublicRoute    from './components/common/PublicRoute';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import Login          from './pages/auth/Login';
 import Register       from './pages/auth/Register';
-
-// TODO: import PlaceList     from './pages/places/PlaceList';
-// TODO: import PlaceDetail   from './pages/places/PlaceDetail';
+import PlaceList      from './pages/places/PlaceList';
+import PlaceDetail    from './pages/places/PlaceDetail';
 // TODO: import PlaceForm     from './pages/places/PlaceForm';
 // TODO: import Itinerary     from './pages/itinerary/Itinerary';
 
@@ -25,9 +24,8 @@ function App() {
           <Route path="/register" element={<Register />} />
         </Route>
 
-        {/* Open browsing routes */}
-        {/* <Route path="/places"      element={<PlaceList />} /> */}
-        {/* <Route path="/places/:id"  element={<PlaceDetail />} /> */}
+        <Route path="/places"     element={<PlaceList />} />
+        <Route path="/places/:id" element={<PlaceDetail />} />
 
         {/* Protected routes — require authentication */}
         <Route element={<ProtectedRoute />}>

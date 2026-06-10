@@ -48,11 +48,12 @@ CREATE TABLE places (
     created_by INT REFERENCES users(user_id) ON DELETE SET NULL,
     name VARCHAR(100) NOT NULL,
     description TEXT,
-    category VARCHAR(50) NOT NULL,
+    categories JSON NOT NULL,    -- ["bar", "restaurant", "outdoor"] — מערך קטגוריות
     latitude DECIMAL(10,8),
     longitude DECIMAL(11,8),
     opening_hours JSON,          -- { "sun": "09:00-22:00", "mon": "closed", ... }
-    is_approved BOOLEAN DEFAULT FALSE
+    is_approved BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE events (

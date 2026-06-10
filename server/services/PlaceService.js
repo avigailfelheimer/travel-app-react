@@ -3,19 +3,19 @@ import { createPlace, fetchPlaces, getPlaceById, updatePlace, deletePlace } from
 const MAX_LIMIT     = 50;
 const DEFAULT_LIMIT = 50;
 
-// ימים בעברית/אנגלית שמקובלים כ-key ב-opening_hours
+// ימים תקינים ל-opening_hours
 const VALID_DAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
-export const addPlace = async (userId, name, description, category, latitude, longitude, openingHours) => {
-    return await createPlace(userId, name, description, category, latitude, longitude, openingHours);
+export const addPlace = async (userId, name, description, categories, latitude, longitude, openingHours) => {
+    return await createPlace(userId, name, description, categories, latitude, longitude, openingHours);
 };
 
 export const getPlace = async (placeId) => {
     return await getPlaceById(placeId);
 };
 
-export const editPlace = async (placeId, name, description, category, latitude, longitude, openingHours) => {
-    return await updatePlace(placeId, name, description, category, latitude, longitude, openingHours);
+export const editPlace = async (placeId, name, description, categories, latitude, longitude, openingHours) => {
+    return await updatePlace(placeId, name, description, categories, latitude, longitude, openingHours);
 };
 
 export const removePlace = async (placeId) => {
@@ -28,8 +28,8 @@ export const removePlace = async (placeId) => {
  * query params נתמכים:
  *   page, limit     — pagination
  *   search          — חיפוש חופשי בשם/תיאור
- *   category        — סינון לפי קטגוריה
- *   open_on         — יום (sun/mon/...) — מחזיר רק מקומות שיש להם שעות לאותו יום ולא "closed"
+ *   category        — סינון לפי קטגוריה אחת (JSON_CONTAINS על מערך categories)
+ *   open_on         — יום (sun/mon/...) — מחזיר רק מקומות שפתוחים באותו יום
  */
 export const getPlaces = async ({ page = 1, limit = DEFAULT_LIMIT, search = '', category = '', open_on = '' } = {}) => {
 
@@ -47,12 +47,13 @@ export const getPlaces = async ({ page = 1, limit = DEFAULT_LIMIT, search = '', 
         params.push(`%${search.trim()}%`, `%${search.trim()}%`);
     }
 
+    // סינון לפי קטגוריה — JSON_CONTAINS בודק אם המערך מכיל את הערך
     if (category?.trim()) {
-        conditions.push('p.category = ?');
-        params.push(category.trim());
+        conditions.push('JSON_CONTAINS(p.categories, ?, \'$\')');
+        params.push(JSON.stringify(category.trim()));  // חייב להיות "\"bar\"" ולא "bar"
     }
 
-    // סינון לפי יום פתיחה — בודק שיש ערך ב-JSON ושהוא לא "closed"
+    // סינון לפי יום פתיחה
     if (open_on?.trim() && VALID_DAYS.includes(open_on.trim().toLowerCase())) {
         const day = open_on.trim().toLowerCase();
         conditions.push(`JSON_UNQUOTE(JSON_EXTRACT(p.opening_hours, '$.${day}')) IS NOT NULL`);

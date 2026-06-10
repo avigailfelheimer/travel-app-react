@@ -135,7 +135,7 @@ export const NO_FILE_UPLOADED = {
 };
 
 export const NAME_CATEGORY_REQUIRED = {
-    message: 'name and category are required',
+    message: 'name is required and categories must be a non-empty array of strings',
     status: 400
 };
 

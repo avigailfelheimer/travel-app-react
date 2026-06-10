@@ -8,28 +8,25 @@ export default function Login() {
   const { login } = useContext(UserContext);
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    if (error) setError('');
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
     setError('');
-    try {
-      const { user, token } = await loginUser(formData.email, formData.password);
-      login({ ...user, token });
-      navigate('/places');
-    } catch (err) {
-      setError(err.message || 'שגיאה בהתחברות, נסי שנית');
-    } finally {
-      setIsLoading(false);
+    console.log('trying to login:', email, password);
+
+    const data = await loginUser(email, password);
+    console.log('login response:', data);
+
+    if (data.error) {
+      setError(data.error);
+      return;
     }
+
+    login({ ...data.user, token: data.token });
+    navigate('/places');
   };
 
   return (
@@ -41,7 +38,7 @@ export default function Login() {
           <p className="auth-subtitle">התחברי כדי להמשיך את המסע שלך</p>
         </div>
 
-        <form className="auth-form" onSubmit={handleSubmit} noValidate>
+        <form className="auth-form" onSubmit={handleSubmit}>
           {error && (
             <div className="auth-error" role="alert">
               {error}
@@ -54,12 +51,10 @@ export default function Login() {
               id="email"
               name="email"
               type="email"
-              autoComplete="email"
               placeholder="your@email.com"
-              value={formData.email}
-              onChange={handleChange}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
-              disabled={isLoading}
             />
           </div>
 
@@ -69,17 +64,15 @@ export default function Login() {
               id="password"
               name="password"
               type="password"
-              autoComplete="current-password"
               placeholder="הזיני סיסמה"
-              value={formData.password}
-              onChange={handleChange}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
-              disabled={isLoading}
             />
           </div>
 
-          <button type="submit" className="auth-btn" disabled={isLoading}>
-            {isLoading ? <span className="btn-spinner" /> : 'התחברי'}
+          <button type="submit" className="auth-btn">
+            התחברי
           </button>
         </form>
 

@@ -16,8 +16,10 @@ const app = express();
 const httpServer = createServer(app);
 
 app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000'
+    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    credentials: true // חובה אם אתה משתמש ב-Cookies, Sessions או Tokens
 }));
+
  app.get('/', (req, res) => res.redirect('/places'));
  
 app.use(express.json());

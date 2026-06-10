@@ -1,16 +1,27 @@
 import { addPlace, getPlaces, getPlace, editPlace, removePlace } from '../services/PlaceService.js';
 import { NAME_CATEGORY_REQUIRED, PLACE_UPDATE_FAILED, PLACE_NOT_FOUND } from '../const/errorConst.js';
 
+const validateCategories = (categories) => {
+    if (!Array.isArray(categories) || categories.length === 0) return false;
+    return categories.every(c => typeof c === 'string' && c.trim().length > 0);
+};
+
 // POST /places — הוספת place חדש
 export const postPlace = async (req, res) => {
     try {
-        const { name, description, category, latitude, longitude, opening_hours } = req.body;
+        const { name, description, categories, latitude, longitude, opening_hours } = req.body;
 
-        if (!name || !category) {
+        if (!name || !validateCategories(categories)) {
             return res.status(NAME_CATEGORY_REQUIRED.status).json({ error: NAME_CATEGORY_REQUIRED.message });
         }
 
-        const newPlace = await addPlace(req.user.id, name, description, category, latitude, longitude, opening_hours);
+        // נקה רווחים מיותרים מכל קטגוריה
+        const cleanCategories = categories.map(c => c.trim());
+
+        const newPlace = await addPlace(
+            req.user.id, name, description, cleanCategories,
+            latitude, longitude, opening_hours
+        );
         res.status(201).json(newPlace);
     } catch (err) {
         res.status(err.status || 500).json({ error: err.message });
@@ -46,13 +57,18 @@ export const fetchPlaceById = async (req, res) => {
 export const putPlace = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, category, latitude, longitude, opening_hours } = req.body;
+        const { name, description, categories, latitude, longitude, opening_hours } = req.body;
 
-        if (!name || !category) {
+        if (!name || !validateCategories(categories)) {
             return res.status(NAME_CATEGORY_REQUIRED.status).json({ error: NAME_CATEGORY_REQUIRED.message });
         }
 
-        const updated = await editPlace(id, name, description, category, latitude, longitude, opening_hours);
+        const cleanCategories = categories.map(c => c.trim());
+
+        const updated = await editPlace(
+            id, name, description, cleanCategories,
+            latitude, longitude, opening_hours
+        );
         if (!updated) {
             return res.status(PLACE_UPDATE_FAILED.status).json({ error: PLACE_UPDATE_FAILED.message });
         }
