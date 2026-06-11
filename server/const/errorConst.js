@@ -5,6 +5,11 @@ export const USER_NOT_FOUND = {
     status: 404
 };
 
+export const ITEM_NOT_FOUND = {
+    message: 'Item not found',
+    status: 404
+};
+
 export const INCORRECT_PASSWORD = {
     message: 'Incorrect password',
     status: 401
@@ -167,11 +172,6 @@ export const FETCH_FAILED = {
 export const FETCH_ITEM_FAILED = {
     message: 'Failed to fetch item',
     status: 500
-};
-
-export const ITEM_NOT_FOUND = {
-    message: 'Item not found',
-    status: 404
 };
 
 export const DELETE_FAILED = {

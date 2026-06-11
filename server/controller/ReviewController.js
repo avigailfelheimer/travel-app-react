@@ -1,11 +1,8 @@
 import { addReview, getPlaceReviews, editReview, removeReview } from '../services/ReviewService.js';
 import { RATING_REQUIRED, RATING_MUST_BE_NUMBER } from '../const/errorConst.js';
 
-/**
- * POST /places/:placeId/reviews
- * הוספת תגובה חדשה לפלייס
- */
-export const postReview = async (req, res) => {
+
+export const postReview = async (req, res, next) => {
     try {
         const placeId = req.params.placeId || req.params.id;
         const { rating, comment } = req.body;
@@ -23,29 +20,22 @@ export const postReview = async (req, res) => {
         const newReview = await addReview(userId, placeId, numericRating, comment);
         res.status(201).json(newReview);
     } catch (err) {
-        res.status(err.status || 500).json({ error: err.message });
+        next(err);
     }
 };
 
-/**
- * GET /places/:placeId/reviews  OR  GET /places/:id/reviews
- * קבלת כל התגובות לפלייס — ציבורי, ללא צורך באימות
- */
-export const getReviews = async (req, res) => {
+
+export const getReviews = async (req, res, next) => {
     try {
         const placeId = req.params.placeId || req.params.id;
         const reviews = await getPlaceReviews(placeId);
         res.status(200).json(reviews);
     } catch (err) {
-        res.status(err.status || 500).json({ error: err.message });
+        next(err);
     }
 };
 
-/**
- * PUT /places/:placeId/reviews/:reviewId
- * עדכון תגובה קיימת — user_id נלקח מהטוקן, לא מה-body
- */
-export const putReview = async (req, res) => {
+export const putReview = async (req, res, next) => {
     try {
         const { reviewId } = req.params;
         const { rating, comment } = req.body;
@@ -62,21 +52,17 @@ export const putReview = async (req, res) => {
         await editReview(reviewId, numericRating, comment);
         res.status(200).json({ success: true, message: 'Review updated successfully' });
     } catch (err) {
-        res.status(err.status || 500).json({ error: err.message });
+        next(err);
     }
 };
 
-/**
- * DELETE /places/:placeId/reviews/:reviewId
- * מחיקת תגובה — user_id נלקח מהטוקן, לא מה-body
- */
-export const deleteReview = async (req, res) => {
+export const deleteReview = async (req, res, next) => {
     try {
         const { reviewId } = req.params;
 
         await removeReview(reviewId);
         res.status(200).json({ success: true, message: 'Review deleted successfully' });
     } catch (err) {
-        res.status(err.status || 500).json({ error: err.message });
+        next(err);
     }
 };

@@ -2,11 +2,7 @@ import { saveMedia, getPlaceMedia, removeMedia } from '../services/MediaService.
 import { buildMediaUrl, resolveMediaType } from '../middleWare/uploadMiddleware.js';
 import { NO_FILE_UPLOADED } from '../const/errorConst.js';
 
-/**
- * POST /places/:placeId/media
- * העלאת קובץ מדיה למקום — multer כבר שמר את הקובץ לפני הכניסה לכאן
- */
-export const postMedia = async (req, res) => {
+export const postMedia = async (req, res, next) => {
     try {
         const { placeId } = req.params;
 
@@ -20,35 +16,27 @@ export const postMedia = async (req, res) => {
         const media = await saveMedia(Number(placeId), req.user.id, mediaType, mediaUrl);
         res.status(201).json(media);
     } catch (err) {
-        res.status(err.status || 500).json({ error: err.message });
+        next(err);
     }
 };
 
-/**
- * GET /places/:placeId/media
- * שליפת כל המדיה של מקום — ציבורי
- */
-export const fetchMedia = async (req, res) => {
+export const fetchMedia = async (req, res, next) => {
     try {
         const { placeId } = req.params;
         const media = await getPlaceMedia(Number(placeId));
         res.status(200).json(media);
     } catch (err) {
-        res.status(err.status || 500).json({ error: err.message });
+        next(err);
     }
 };
 
-/**
- * DELETE /places/:placeId/media/:mediaId
- * מחיקת קובץ מדיה — דורש אימות + בדיקת בעלות (נעשית בסרוויס)
- */
-export const deleteMediaItem = async (req, res) => {
+export const deleteMediaItem = async (req, res, next) => {
     try {
         const { mediaId } = req.params;
 
         await removeMedia(Number(mediaId), req.user);
         res.status(200).json({ success: true, message: 'Media deleted successfully' });
     } catch (err) {
-        res.status(err.status || 500).json({ error: err.message });
+        next(err);
     }
 };

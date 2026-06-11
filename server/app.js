@@ -6,48 +6,50 @@ dotenv.config();
 
 import authRoutes      from './routes/authRoutes.js';
 import placeRoutes     from './routes/placeRoute.js';
-import reviewRoutes    from './routes/reviewRoute.js';
+import userRoutes      from './routes/userRoutes.js';
 import itineraryRoutes from './routes/itineraryRoute.js';
-import mediaRoutes     from './routes/mediaRoute.js';
-import { initSocket }  from './services/socketManager.js';
 import { ROUTE_NOT_FOUND, INTERNAL_SERVER_ERROR } from './const/errorConst.js';
+
+
+//אני מייבאת מהראוט את המודל לשים לב אם זה צריך לעבור דרך הסרוויס
+//ליצור אודיו ולבדוק את המדיה
 
 const app = express();
 const httpServer = createServer(app);
 
 app.use(cors({
     origin: process.env.CLIENT_URL || 'http://localhost:5173',
-    credentials: true // חובה אם אתה משתמש ב-Cookies, Sessions או Tokens
+    credentials: true 
 }));
 
- app.get('/', (req, res) => res.redirect('/places'));
+//  app.get('/', (req, res) => res.redirect('/places'));
  
 app.use(express.json());
 
-// הגשת קבצי המדיה שהועלו
 app.use('/uploads', express.static('uploads'));
 
-// Routes
 app.use('/auth',      authRoutes);
 app.use('/places',    placeRoutes);
-app.use('/places/:placeId/reviews', reviewRoutes);
-app.use('/places/:placeId/media', mediaRoutes);   // mediaRoute מגדיר '/:placeId/media' בפנים + mergeParams:true
-
+app.use('/user',      userRoutes);
+// app.use('/places/:placeId/reviews', reviewRoutes);
+// app.use('/places/:placeId/media', mediaRoutes);  
 app.use('/itinerary', itineraryRoutes);
-
-// 404 handler
 app.use((req, res) => {
     res.status(ROUTE_NOT_FOUND.status).json({ error: ROUTE_NOT_FOUND.message });
 });
 
-// Global error handler
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(INTERNAL_SERVER_ERROR.status).json({ error: INTERNAL_SERVER_ERROR.message });
+
+    const status = err.status || INTERNAL_SERVER_ERROR.status;
+    const message = err.message || INTERNAL_SERVER_ERROR.message;
+
+    res.status(status).json({
+        error: message
+    });
 });
 
-// אתחול Socket.io
-initSocket(httpServer);
+// initSocket(httpServer);
 
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {

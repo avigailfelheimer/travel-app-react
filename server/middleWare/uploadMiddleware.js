@@ -2,10 +2,6 @@ import multer from 'multer';
 import path from 'path';
 import { INVALID_MEDIA_TYPE, MEDIA_UPLOAD_FAILED, FILE_SIZE_EXCEEDED } from '../const/errorConst.js';
 
-// ===== הגדרת אחסון =====
-// כרגע: שמירה לדיסק מקומי תחת /uploads
-// להחלפה ל-S3 / Cloudinary — מחליפים רק את storage הזה, שאר הקוד נשאר זהה
-
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'uploads/');
@@ -17,15 +13,11 @@ const storage = multer.diskStorage({
     }
 });
 
-// ===== מיפוי סוג MIME לסוג מדיה שלנו =====
 const MIME_TO_MEDIA_TYPE = {
     'image/jpeg':  'image',
     'image/png':   'image',
     'image/gif':   'image',
     'image/webp':  'image',
-    'video/mp4':   'video',
-    'video/mpeg':  'video',
-    'video/webm':  'video',
     'audio/mpeg':  'audio',
     'audio/mp3':   'audio',
     'audio/wav':   'audio',
@@ -49,18 +41,15 @@ const upload = multer({
     }
 });
 
-// ===== בניית ה-URL לאחר העלאה =====
-// generic — מחזיר URL יחסי. לחיבור ל-S3/Cloudinary: מחליפים רק את הפונקציה הזו
+
 export const buildMediaUrl = (req, filename) => {
     return `${req.protocol}://${req.get('host')}/uploads/${filename}`;
 };
 
-// ===== resolve media_type לפי MIME =====
 export const resolveMediaType = (mimetype) => {
     return MIME_TO_MEDIA_TYPE[mimetype] || null;
 };
 
-// ===== Middleware לטיפול בשגיאות multer =====
 export const handleUploadError = (err, req, res, next) => {
     if (err instanceof multer.MulterError) {
         if (err.code === 'LIMIT_FILE_SIZE') {

@@ -1,36 +1,70 @@
 import { createPlace, fetchPlaces, getPlaceById, updatePlace, deletePlace } from '../models/PlaceModel.js';
+import { NAME_CATEGORY_REQUIRED, PLACE_NOT_FOUND, PLACE_UPDATE_FAILED, INTERNAL_SERVER_ERROR } from '../const/errorConst.js';
 
 const MAX_LIMIT     = 50;
 const DEFAULT_LIMIT = 50;
 
-// ימים תקינים ל-opening_hours
-const VALID_DAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+export const validateCategories = (categories) => {
+    if (!Array.isArray(categories) || categories.length === 0) return false;
+    return categories.every(c => typeof c === 'string' && c.trim().length > 0);
+};
 
 export const addPlace = async (userId, name, description, categories, latitude, longitude, openingHours) => {
-    return await createPlace(userId, name, description, categories, latitude, longitude, openingHours);
+    if (!name || !validateCategories(categories)) {
+        const error = new Error(NAME_CATEGORY_REQUIRED.message);
+        error.status = NAME_CATEGORY_REQUIRED.status;
+        throw error;
+    }
+
+    const created = await createPlace(userId, name, description, categories, latitude, longitude, openingHours);
+    if (!created) {
+        const error = new Error(INTERNAL_SERVER_ERROR.message);
+        error.status = INTERNAL_SERVER_ERROR.status;
+        throw error;
+    }
+
+    return created;
 };
 
 export const getPlace = async (placeId) => {
-    return await getPlaceById(placeId);
+    const place = await getPlaceById(placeId);
+    if (!place) {
+        const error = new Error(PLACE_NOT_FOUND.message);
+        error.status = PLACE_NOT_FOUND.status;
+        throw error;
+    }
+    return place;
 };
 
 export const editPlace = async (placeId, name, description, categories, latitude, longitude, openingHours) => {
-    return await updatePlace(placeId, name, description, categories, latitude, longitude, openingHours);
+    // validate input (defensive)
+    if (!name || !validateCategories(categories)) {
+        const error = new Error(NAME_CATEGORY_REQUIRED.message);
+        error.status = NAME_CATEGORY_REQUIRED.status;
+        throw error;
+    }
+
+    const updated = await updatePlace(placeId, name, description, categories, latitude, longitude, openingHours);
+    if (!updated) {
+        const error = new Error(PLACE_UPDATE_FAILED.message);
+        error.status = PLACE_UPDATE_FAILED.status;
+        throw error;
+    }
+
+    return updated;
 };
 
 export const removePlace = async (placeId) => {
-    return await deletePlace(placeId);
+    const deleted = await deletePlace(placeId);
+    if (!deleted) {
+        const error = new Error(PLACE_NOT_FOUND.message);
+        error.status = PLACE_NOT_FOUND.status;
+        throw error;
+    }
+    return deleted;
 };
 
-/**
- * שליפת מקומות עם סינון מתקדם
- *
- * query params נתמכים:
- *   page, limit     — pagination
- *   search          — חיפוש חופשי בשם/תיאור
- *   category        — סינון לפי קטגוריה אחת (JSON_CONTAINS על מערך categories)
- *   open_on         — יום (sun/mon/...) — מחזיר רק מקומות שפתוחים באותו יום
- */
+
 export const getPlaces = async ({ page = 1, limit = DEFAULT_LIMIT, search = '', category = '', open_on = '' } = {}) => {
 
     // --- pagination ---
@@ -51,13 +85,6 @@ export const getPlaces = async ({ page = 1, limit = DEFAULT_LIMIT, search = '', 
     if (category?.trim()) {
         conditions.push('JSON_CONTAINS(p.categories, ?, \'$\')');
         params.push(JSON.stringify(category.trim()));  // חייב להיות "\"bar\"" ולא "bar"
-    }
-
-    // סינון לפי יום פתיחה
-    if (open_on?.trim() && VALID_DAYS.includes(open_on.trim().toLowerCase())) {
-        const day = open_on.trim().toLowerCase();
-        conditions.push(`JSON_UNQUOTE(JSON_EXTRACT(p.opening_hours, '$.${day}')) IS NOT NULL`);
-        conditions.push(`JSON_UNQUOTE(JSON_EXTRACT(p.opening_hours, '$.${day}')) != 'closed'`);
     }
 
     // --- שליפה מהמודל ---

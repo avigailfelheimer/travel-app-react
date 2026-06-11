@@ -5,32 +5,34 @@ import {
     putReview,
     deleteReview
 } from '../controller/ReviewController.js';
-import { authenticateToken, authorizeReviewModification } from '../middleWare/authMiddleware.js';
 
-const router = express.Router();
+import { authenticateToken, authorizeOwnership } from '../middleWare/authMiddleware.js';
+import { getReviewById } from '../models/ReviewModel.js';
 
-/**
- * POST /places/:placeId/reviews
- * הוספת תגובה חדשה - דורש אימות
- */
-router.post('/:placeId/reviews', authenticateToken, postReview);
+const router = express.Router({ mergeParams: true }); 
 
-/**
- * GET /places/:placeId/reviews
- * קבלת כל התגובות לפלייס - לא דורש אימות
- */
-router.get('/:placeId/reviews', getReviews);
+router.get('/', getReviews);
 
-/**
- * PUT /places/:placeId/reviews/:reviewId
- * עדכון תגובה - דורש אימות + הרשאות
- */
-router.put('/:placeId/reviews/:reviewId', authenticateToken, authorizeReviewModification, putReview);
+router.post('/', authenticateToken, postReview);
 
-/**
- * DELETE /places/:placeId/reviews/:reviewId
- * מחיקת תגובה - דורש אימות + הרשאות
- */
-router.delete('/:placeId/reviews/:reviewId', authenticateToken, authorizeReviewModification, deleteReview);
+router.put('/:reviewId',
+    authenticateToken,
+    authorizeOwnership({
+        getById: getReviewById,
+        paramName: 'reviewId',
+        ownerField: 'user_id'
+    }),
+    putReview
+);
+
+router.delete('/:reviewId',
+    authenticateToken,
+    authorizeOwnership({
+        getById: getReviewById,
+        paramName: 'reviewId',
+        ownerField: 'user_id'
+    }),
+    deleteReview
+);
 
 export default router;

@@ -1,22 +1,36 @@
 import express from 'express';
 import { postPlace, fetchPlaces, fetchPlaceById, putPlace, deletePlace } from '../controller/PlaceController.js';
-import { authenticateToken, requireRole, authorizePlaceModification } from '../middleWare/authMiddleware.js';
+import reviewRoutes from './reviewRoute.js';
+import mediaRoutes from './mediaRoute.js';
+import { authenticateToken, authorizeOwnership } from '../middleWare/authMiddleware.js';
+import { getPlaceById } from '../models/PlaceModel.js';
 
 const router = express.Router();
 
-// שליפת כל הפלייסים — ציבורי (חייב להיות לפני /:id)
 router.get('/', fetchPlaces);
-
-// שליפת פלייס בודד — ציבורי
 router.get('/:id', fetchPlaceById);
+router.post('/', authenticateToken, postPlace);
+router.put('/:id', authenticateToken, 
+    authorizeOwnership({
+		getById: getPlaceById,
+		paramName: 'id',
+		ownerField: 'created_by',
+	}),
+	putPlace
+);
 
-// הוספת place — מאומת, role: regular ומעלה
-router.post('/', authenticateToken, requireRole('regular'), postPlace);
+router.delete('/:id', authenticateToken,
+	authorizeOwnership({
+		getById: getPlaceById,
+		paramName: 'id',
+		ownerField: 'created_by',
+	}),
+	deletePlace
+);
 
-// עדכון place — מאומת + בדיקת הרשאות
-router.put('/:id', authenticateToken, authorizePlaceModification, putPlace);
+router.use('/:placeId/reviews', reviewRoutes);
+router.use('/:placeId/media', mediaRoutes);
 
-// מחיקת place — מאומת + בדיקת הרשאות
-router.delete('/:id', authenticateToken, authorizePlaceModification, deletePlace);
+
 
 export default router;

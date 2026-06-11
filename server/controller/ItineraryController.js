@@ -6,24 +6,16 @@ import {
 } from '../services/ItineraryService.js';
 import { PLACE_ID_REQUIRED, ENTRIES_REQUIRED, ENTRY_FIELDS_REQUIRED } from '../const/errorConst.js';
 
-/**
- * GET /itinerary
- * שליפת המסלול האישי של המשתמש המחובר
- */
-export const fetchItinerary = async (req, res) => {
+export const fetchItinerary = async (req, res, next) => {
     try {
         const itinerary = await getItinerary(req.user.id);
         res.status(200).json(itinerary);
     } catch (err) {
-        res.status(err.status || 500).json({ error: err.message });
+        next(err);
     }
 };
 
-/**
- * POST /itinerary
- * הוספת מקום למסלול — { place_id } בגוף הבקשה
- */
-export const postItineraryPlace = async (req, res) => {
+export const postItineraryPlace = async (req, res, next) => {
     try {
         const { place_id } = req.body;
 
@@ -34,30 +26,22 @@ export const postItineraryPlace = async (req, res) => {
         const entry = await addPlace(req.user.id, place_id);
         res.status(201).json(entry);
     } catch (err) {
-        res.status(err.status || 500).json({ error: err.message });
+        next(err);
     }
 };
 
-/**
- * DELETE /itinerary/:favoriteId
- * הסרת מקום מהמסלול לפי favorite_id
- */
-export const deleteItineraryPlace = async (req, res) => {
+export const deleteItineraryPlace = async (req, res, next) => {
     try {
         const { favoriteId } = req.params;
 
         await removePlace(req.user.id, Number(favoriteId));
         res.status(200).json({ success: true, message: 'Place removed from itinerary' });
     } catch (err) {
-        res.status(err.status || 500).json({ error: err.message });
+        next(err);
     }
 };
 
-/**
- * PUT /itinerary/reorder
- * עדכון סדר המסלול — { entries: [{ favorite_id, order_index }, ...] } בגוף הבקשה
- */
-export const putItineraryOrder = async (req, res) => {
+export const putItineraryOrder = async (req, res, next) => {
     try {
         const { entries } = req.body;
 
@@ -74,6 +58,6 @@ export const putItineraryOrder = async (req, res) => {
         await reorderPlaces(req.user.id, entries);
         res.status(200).json({ success: true, message: 'Itinerary reordered successfully' });
     } catch (err) {
-        res.status(err.status || 500).json({ error: err.message });
+        next(err);
     }
 };
